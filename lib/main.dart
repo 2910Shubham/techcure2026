@@ -16,7 +16,7 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/webview',
       builder: (context, state) =>
-          const WebViewScreen(url: 'https://techcure-hackathon.vercel.app/'),
+          const WebViewScreen(url: 'https://techcure.bitbrains.site/'),
     ),
   ],
 );
