@@ -204,9 +204,9 @@ class _WebViewScreenState extends State<WebViewScreen>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            const Color(0xFF06B6D4),
-                            const Color(0xFF2563EB),
-                            const Color(0xFF7C3AED),
+                            const Color.fromARGB(255, 0, 78, 92),
+                            const Color.fromARGB(255, 3, 33, 98),
+                            const Color.fromARGB(255, 65, 0, 178),
                           ],
                         ),
                       ),
@@ -220,13 +220,13 @@ class _WebViewScreenState extends State<WebViewScreen>
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  Color(0xFF06B6D4),
-                                  Color(0xFF2563EB),
+                                  Color.fromARGB(255, 0, 8, 56),
+                                  Color.fromARGB(255, 1, 23, 68),
                                 ],
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF2563EB)
+                                  color: const Color.fromARGB(255, 1, 21, 62)
                                       .withOpacity(0.5),
                                   blurRadius: 8,
                                   spreadRadius: 2,
