@@ -45,5 +45,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Location usage description required for WebView geolocation (navigator.geolocation) -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app uses your location to show nearby services and enable location features on the website.</string>
 </dict>
 </plist>

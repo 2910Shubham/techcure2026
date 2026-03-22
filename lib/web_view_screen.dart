@@ -1,6 +1,10 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart' as webview;
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 class WebViewScreen extends StatefulWidget {
   final String url;
@@ -35,6 +39,20 @@ class _WebViewScreenState extends State<WebViewScreen>
 
     _loaderController.repeat(reverse: true);
     _initializeWebView();
+    // Ask for location permission when WebView screen opens (Android & iOS)
+    // so the app has permission before the website requests geolocation
+    if (Platform.isAndroid || Platform.isIOS) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _requestLocationPermission());
+    }
+  }
+
+  /// Requests location permission so the app can provide it to the WebView
+  /// when the website calls navigator.geolocation.
+  Future<void> _requestLocationPermission() async {
+    final status = await Permission.locationWhenInUse.status;
+    if (status.isDenied) {
+      await Permission.locationWhenInUse.request();
+    }
   }
 
   void _initializeWebView() {
@@ -84,7 +102,7 @@ class _WebViewScreenState extends State<WebViewScreen>
             },
           ),
         );
-      _loadUrl();
+      _setupGeolocationThenLoad();
     } catch (e) {
       // If webview is not available (web platform), open in browser
       debugPrint('WebView not available: $e');
@@ -96,16 +114,40 @@ class _WebViewScreenState extends State<WebViewScreen>
     }
   }
 
+  /// Enables WebView geolocation (Android) and then loads the URL.
+  /// On Android, sets geolocation enabled and a callback so when the website
+  /// calls navigator.geolocation.getCurrentPosition(), we request app location
+  /// permission and allow/deny the WebView accordingly.
+  Future<void> _setupGeolocationThenLoad() async {
+    if (Platform.isAndroid && _controller.platform is AndroidWebViewController) {
+      final androidController = _controller.platform as AndroidWebViewController;
+      await androidController.setGeolocationEnabled(true);
+      await androidController.setGeolocationPermissionsPromptCallbacks(
+        onShowPrompt: (GeolocationPermissionsRequestParams params) async {
+          final status = await Permission.locationWhenInUse.request();
+          return GeolocationPermissionsResponse(
+            allow: status.isGranted,
+            retain: true,
+          );
+        },
+      );
+    }
+    if (!mounted) return;
+    _loadUrl();
+  }
+
   void _loadUrl() async {
     try {
       await _controller.loadRequest(Uri.parse(widget.url));
     } catch (e) {
       debugPrint('Error loading URL: $e');
-      setState(() {
-        _isWebPlatform = true;
-        _isLoading = false;
-      });
-      _openInBrowser();
+      if (mounted) {
+        setState(() {
+          _isWebPlatform = true;
+          _isLoading = false;
+        });
+        _openInBrowser();
+      }
     }
   }
 
